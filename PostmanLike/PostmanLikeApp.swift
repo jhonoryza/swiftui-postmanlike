@@ -1,3 +1,4 @@
+
 import SwiftUI
 
 @main
@@ -29,7 +30,7 @@ struct PostmanLikeApp: App {
                         .environmentObject(appState)
                 }
                 .sheet(isPresented: $appState.showExportEnvironments) {
-                    ExportEnvironmentsView(isPresented: $appState.showExportEnvironments)
+                    ExportEnvironmentsView()
                         .environmentObject(appState)
                 }
         }

@@ -1,10 +1,3 @@
-//
-//  EnvironmentViews.swift
-//  PostmanLike
-//
-//  Created by fajar on 22/9/25.
-//
-
 import Foundation
 import SwiftUI
 import UniformTypeIdentifiers
@@ -28,21 +21,28 @@ struct PostmanValue: Codable {
 
 struct ExportEnvironmentsView: View {
     @EnvironmentObject var appState: AppState
-    @Binding var isPresented: Bool
+    @State private var selectedEnvironment: AppEnvironment? = nil
+    @State private var isFileExporterPresented = false
 
     var body: some View {
-        VStack {}
+        VStack {
+            Text("Select an environment to export").font(.headline).padding()
+            List(appState.environments, id: \.id) { environment in
+                Button(environment.name) {
+                    self.selectedEnvironment = environment
+                    self.isFileExporterPresented = true
+                }
+            }
+        }
+        .frame(width: 300, height: 400)
         .fileExporter(
-            isPresented: $isPresented,
-            document: EnvironmentDocument(appState: appState),
+            isPresented: $isFileExporterPresented,
+            document: EnvironmentDocument(environment: selectedEnvironment),
             contentType: .json,
-            defaultFilename: "environments.json"
+            defaultFilename: (selectedEnvironment?.name ?? "env") + ".json"
         ) { result in
-            switch result {
-            case .success(let url):
-                print("Environments exported to \(url)")
-            case .failure(let error):
-                print("Error exporting environments: \(error)")
+            if case .failure(let error) = result {
+                print("Error exporting environment: \(error)")
             }
         }
     }
@@ -72,42 +72,42 @@ struct ImportEnvironmentsView: View {
 }
 
 struct EnvironmentDocument: FileDocument {
-    static var readableContentTypes: [UTType] { [.json] }
+    static var readableContentTypes: [UTType] { [.json] } 
     
-    var appState: AppState
+    var environment: AppEnvironment?
 
-    init(appState: AppState) {
-        self.appState = appState
+    init(environment: AppEnvironment?) {
+        self.environment = environment
     }
     
     init(configuration: ReadConfiguration) throws {
         if let data = configuration.file.regularFileContents {
             let decoder = JSONDecoder()
             let postmanEnvironment = try decoder.decode(PostmanEnvironment.self, from: data)
-            self.appState = AppState()
-            self.appState.environments = [postmanEnvironment.toAppEnvironment()]
+            self.environment = postmanEnvironment.toAppEnvironment()
         } else {
             fatalError("Cannot read file")
         }
     }
 
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        guard let environment = environment else {
+            throw CocoaError(.fileWriteUnknown)
+        }
         let encoder = JSONEncoder()
         encoder.outputFormatting = .prettyPrinted
-        let data = try encoder.encode(toPostmanEnvironment())
+        let data = try encoder.encode(toPostmanEnvironment(environment))
         return FileWrapper(regularFileWithContents: data)
     }
     
-    private func toPostmanEnvironment() -> PostmanEnvironment {
-        let values = appState.environments.flatMap { env in
-            env.variables.map { key, value in
-                PostmanValue(key: key, value: value, enabled: true)
-            }
+    private func toPostmanEnvironment(_ environment: AppEnvironment) -> PostmanEnvironment {
+        let values = environment.variables.map { key, value in
+            PostmanValue(key: key, value: value, enabled: true)
         }
         
         return PostmanEnvironment(
             id: UUID(),
-            name: "PostmanLike Environments",
+            name: environment.name,
             values: values,
             _postman_variable_scope: "environment",
             _postman_exported_at: "",
