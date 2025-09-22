@@ -25,7 +25,7 @@ class AppState: ObservableObject {
         currentEnvironment = sampleEnv
         
         let sampleRequest = Request(
-            name: "Get Users",
+            name: "Posts List",
             method: "GET",
             url: "{{baseUrl}}/api/posts",
             headers: [

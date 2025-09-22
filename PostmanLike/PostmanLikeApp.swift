@@ -17,7 +17,19 @@ struct PostmanLikeApp: App {
                 .environmentObject(appState)
         }
         .commands {
-            CommandMenu("File") {
+            SidebarCommands()
+            CommandGroup(after: .newItem) {
+                Button("Import from Postman") {
+                    appState.showImportPostman = true
+                }
+                
+                Button("Export Project") {
+                    appState.exportProject()
+                }
+                
+                Button("Load Project") {
+                    appState.showLoadProject = true
+                }
                 Button("Save") {
                     NotificationCenter.default.post(name: .save, object: nil)
                 }
