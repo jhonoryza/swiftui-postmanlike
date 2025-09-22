@@ -126,23 +126,24 @@ struct LoadProjectView: View {
 
 // MARK: - Import/Export Utilities
 class PostmanImporter {
-    func importFromData(_ data: Data) -> [RequestCollection]? {
+    func importFromData(_ data: Data) -> [RequestGroup]? {
         // Implementation for parsing Postman export format
         print("Importing Postman collection...")
         // For now, return some sample data
         let sampleRequest = Request(
             name: "Imported Request",
-            url: "https://jsonplaceholder.typicode.com/posts",
             method: "GET",
-            headers: [Header(key: "Content-Type", value: "application/json")]
+            url: "https://jsonplaceholder.typicode.com/posts",
+            headers: [Header(key: "Content-Type", value: "application/json")],
+            body: ""
         )
         
-        let sampleCollection = RequestCollection(
-            name: "Imported Collection",
+        let sampleGroup = RequestGroup(
+            name: "Imported Group",
             requests: [sampleRequest]
         )
         
-        return [sampleCollection]
+        return [sampleGroup]
     }
 }
 
@@ -162,7 +163,6 @@ class ProjectExporter {
         
         do {
             let projectData = ProjectData(
-                collections: appState.collections,
                 groups: appState.groups,
                 environments: appState.environments
             )
@@ -178,7 +178,7 @@ class ProjectExporter {
 }
 
 class ProjectLoader {
-    func loadProject(from data: Data) -> (collections: [RequestCollection], groups: [RequestCollectionGroup], environments: [AppEnvironment])? {
+    func loadProject(from data: Data) -> (groups: [RequestGroup], environments: [AppEnvironment])? {
         // Implementation for loading project from file
         print("Loading project...")
         
@@ -186,7 +186,7 @@ class ProjectLoader {
         
         do {
             let projectData = try decoder.decode(ProjectData.self, from: data)
-            return (projectData.collections, projectData.groups, projectData.environments)
+            return (projectData.groups, projectData.environments)
         } catch {
             print("Error decoding project: \(error)")
             return nil
@@ -195,7 +195,6 @@ class ProjectLoader {
 }
 
 struct ProjectData: Codable {
-    let collections: [RequestCollection]
-    let groups: [RequestCollectionGroup]
+    let groups: [RequestGroup]
     let environments: [AppEnvironment]
 }

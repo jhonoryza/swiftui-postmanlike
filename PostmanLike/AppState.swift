@@ -10,8 +10,7 @@ import SwiftUI
 
 class AppState: ObservableObject {
     @Published var environments: [AppEnvironment] = []
-    @Published var groups: [RequestCollectionGroup] = []
-    @Published var collections: [RequestCollection] = []
+    @Published var groups: [RequestGroup] = []
     @Published var selectedRequest: Request?
     @Published var response: ResponseData?
     @Published var currentEnvironment: AppEnvironment?
@@ -27,30 +26,33 @@ class AppState: ObservableObject {
         
         let sampleRequest = Request(
             name: "Get Users",
-            url: "{{baseUrl}}/api/posts",
             method: "GET",
+            url: "{{baseUrl}}/api/posts",
             headers: [
                 Header(key: "Content-Type", value: "application/json"),
                 Header(key: "Accept", value: "application/json"),
-            ]
+            ],
+            body: ""
         )
         
-        let sampleCollection = RequestCollection(
-            name: "Sample Collection",
+        let sampleGroup = RequestGroup(
+            name: "Sample Group",
             requests: [sampleRequest]
         )
         
-        collections = [sampleCollection]
+        groups = [sampleGroup]
         selectedRequest = sampleRequest
     }
     
-    func addNewCollection() {
-        let newCollection = RequestCollection(name: "New Collection")
-        collections.append(newCollection)
+    func addNewRequest(to group: RequestGroup) {
+        let newRequest = Request(name: "New Request", method: "GET", url: "", headers: [], body: "")
+        if let index = groups.firstIndex(where: { $0.id == group.id }) {
+            groups[index].requests.append(newRequest)
+        }
     }
     
-    func addNewGroup() {
-        let newGroup = RequestCollectionGroup(name: "New Group")
+    func addNewGroup(name: String) {
+        let newGroup = RequestGroup(name: name, requests: [])
         groups.append(newGroup)
     }
     
@@ -63,8 +65,8 @@ class AppState: ObservableObject {
     func importPostmanCollection(from data: Data) {
         // Implementation for importing Postman collection
         let importer = PostmanImporter()
-        if let importedCollections = importer.importFromData(data) {
-            self.collections.append(contentsOf: importedCollections)
+        if let importedGroups = importer.importFromData(data) {
+            self.groups.append(contentsOf: importedGroups)
         }
     }
     
@@ -72,22 +74,26 @@ class AppState: ObservableObject {
         // Implementation for loading project
         let projectLoader = ProjectLoader()
         if let projectData = projectLoader.loadProject(from: data) {
-            self.collections = projectData.collections
             self.groups = projectData.groups
             self.environments = projectData.environments
         }
     }
     
-    func deleteCollection(_ collection: RequestCollection) {
-        collections.removeAll { $0.id == collection.id }
-        
-        // Also remove from any group
+    func deleteRequest(_ request: Request) {
         for i in groups.indices {
-            groups[i].collections.removeAll { $0.id == collection.id }
+            groups[i].requests.removeAll { $0.id == request.id }
         }
     }
     
-    func deleteGroup(_ group: RequestCollectionGroup) {
+    func deleteGroup(_ group: RequestGroup) {
         groups.removeAll { $0.id == group.id }
+    }
+    
+    func updateRequest(_ request: Request) {
+        for i in groups.indices {
+            if let reqIndex = groups[i].requests.firstIndex(where: { $0.id == request.id }) {
+                groups[i].requests[reqIndex] = request
+            }
+        }
     }
 }

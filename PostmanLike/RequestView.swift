@@ -11,22 +11,23 @@ struct RequestView: View {
     @EnvironmentObject var appState: AppState
     @State private var selectedTab = "Headers"
     
-    @State private var url: String = ""
-    @State private var method: String = "GET"
-    @State private var headers: [Header] = []
-    @State private var bodyText: String = ""
-    @State private var bodyType: BodyType = .json
-    @State private var formData: [FormDataItem] = []
     @State private var isRequesting = false
     @State private var currentTask: URLSessionDataTask?
 
+    private var selectedRequest: Binding<Request> {
+        Binding<Request>(
+            get: { appState.selectedRequest! },
+            set: { appState.selectedRequest = $0 }
+        )
+    }
+
     var body: some View {
         ZStack {
-            VStack {
-                if appState.selectedRequest != nil {
+            if appState.selectedRequest != nil {
+                VStack {
                     // URL and Method
                     HStack {
-                        Picker("Method", selection: $method) {
+                        Picker("Method", selection: selectedRequest.method) {
                             Text("GET").tag("GET")
                             Text("POST").tag("POST")
                             Text("PUT").tag("PUT")
@@ -35,7 +36,7 @@ struct RequestView: View {
                         }
                         .frame(width: 100)
                         
-                        TextField("URL", text: $url)
+                        TextField("URL", text: selectedRequest.url)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                         
                         if isRequesting {
@@ -63,54 +64,29 @@ struct RequestView: View {
                     
                     // Headers or Body view based on selection
                     if selectedTab == "Headers" {
-                        HeadersView(headers: $headers)
+                        HeadersView(headers: selectedRequest.headers)
                     } else {
-                        BodyView(bodyText: $bodyText, bodyType: $bodyType, formData: $formData)
+                        BodyView(bodyText: selectedRequest.body, bodyType: selectedRequest.bodyType, formData: selectedRequest.formData)
                     }
                     
                     Spacer()
-                } else {
-                    Text("Select a request to begin")
-                        .foregroundColor(.secondary)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
+                .focusable()
+                .onReceive(NotificationCenter.default.publisher(for: .save)) { _ in
+                    saveData()
+                }
+            } else {
+                Text("Select a request to begin")
+                    .foregroundColor(.secondary)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .onAppear {
-                loadRequestData()
-            }
-            .onChange(of: appState.selectedRequest) { _ in
-                loadRequestData()
-            }
-            .onChange(of: url) { _ in saveData() }
-            .onChange(of: method) { _ in saveData() }
-            .onChange(of: headers) { _ in saveData() }
-            .onChange(of: bodyText) { _ in saveData() }
-            .onChange(of: bodyType) { _ in saveData() }
-            .onChange(of: formData) { _ in saveData() }
-        }
-    }
-    
-    private func loadRequestData() {
-        if let request = appState.selectedRequest {
-            url = request.url
-            method = request.method
-            headers = request.headers
-            bodyText = request.body
-            bodyType = request.bodyType
-            formData = request.formData
         }
     }
     
     private func saveData() {
-        guard let selectedRequest = appState.selectedRequest, let index = appState.collections.firstIndex(where: { $0.requests.contains(where: { $0.id == selectedRequest.id }) }) else { return }
-        guard let reqIndex = appState.collections[index].requests.firstIndex(where: { $0.id == selectedRequest.id }) else { return }
-        
-        appState.collections[index].requests[reqIndex].url = url
-        appState.collections[index].requests[reqIndex].method = method
-        appState.collections[index].requests[reqIndex].headers = headers
-        appState.collections[index].requests[reqIndex].body = bodyText
-        appState.collections[index].requests[reqIndex].bodyType = bodyType
-        appState.collections[index].requests[reqIndex].formData = formData
+        if let request = appState.selectedRequest {
+            appState.updateRequest(request)
+        }
     }
     
     private func cancelRequest() {
@@ -119,37 +95,38 @@ struct RequestView: View {
     }
     
     private func sendRequest() {
+        guard let request = appState.selectedRequest else { return }
         isRequesting = true
         let startTime = Date()
         
-        let finalURL = replaceEnvironmentVariables(in: url)
+        let finalURL = replaceEnvironmentVariables(in: request.url)
         guard let url = URL(string: finalURL) else {
             appState.response = ResponseData(error: "Invalid URL")
             isRequesting = false
             return
         }
         
-        var request = URLRequest(url: url)
-        request.httpMethod = method
+        var urlRequest = URLRequest(url: url)
+        urlRequest.httpMethod = request.method
         
-        headers.forEach {
+        request.headers.forEach {
             if $0.isEnabled {
-                request.setValue(replaceEnvironmentVariables(in: $0.value), forHTTPHeaderField: $0.key)
+                urlRequest.setValue(replaceEnvironmentVariables(in: $0.value), forHTTPHeaderField: $0.key)
             }
         }
         
-        if method != "GET" {
-            switch bodyType {
+        if request.method != "GET" {
+            switch request.bodyType {
             case .json:
-                if !bodyText.isEmpty {
-                    request.httpBody = replaceEnvironmentVariables(in: bodyText).data(using: .utf8)
+                if !request.body.isEmpty {
+                    urlRequest.httpBody = replaceEnvironmentVariables(in: request.body).data(using: .utf8)
                 }
             case .formData:
                 let boundary = "Boundary-\(UUID().uuidString)"
-                request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+                urlRequest.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
                 
                 var body = Data()
-                for item in formData {
+                for item in request.formData {
                     if item.enabled {
                         body.append("--\(boundary)\r\n".data(using: .utf8)!)
                         body.append("Content-Disposition: form-data; name=\"\(item.key)\"\r\n\r\n".data(using: .utf8)!)
@@ -157,11 +134,11 @@ struct RequestView: View {
                     }
                 }
                 body.append("--\(boundary)--\r\n".data(using: .utf8)!)
-                request.httpBody = body
+                urlRequest.httpBody = body
             }
         }
         
-        currentTask = URLSession.shared.dataTask(with: request) { data, response, error in
+        currentTask = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
             let time = Date().timeIntervalSince(startTime)
             DispatchQueue.main.async {
                 isRequesting = false
@@ -264,4 +241,37 @@ struct BodyView: View {
             }
         }
     }
+}
+
+struct FormDataView: View {
+    @Binding var formData: [FormDataItem]
+    
+    var body: some View {
+        List {
+            ForEach($formData) { $item in
+                HStack {
+                    Toggle("", isOn: $item.enabled)
+                    TextField("Key", text: $item.key)
+                    TextField("Value", text: $item.value)
+                }
+            }
+            .onDelete(perform: deleteItem)
+            
+            Button(action: addItem) {
+                Label("Add Item", systemImage: "plus")
+            }
+        }
+    }
+    
+    private func addItem() {
+        formData.append(FormDataItem())
+    }
+    
+    private func deleteItem(at offsets: IndexSet) {
+        formData.remove(atOffsets: offsets)
+    }
+}
+
+extension Notification.Name {
+    static let save = Notification.Name("save")
 }

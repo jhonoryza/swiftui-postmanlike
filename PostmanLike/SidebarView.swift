@@ -11,7 +11,13 @@ struct SidebarView: View {
     @EnvironmentObject var appState: AppState
     @State private var showingNewEnvironment = false
     @State private var newEnvironmentName = ""
-    
+    @State private var renamingRequest: Request? = nil
+    @State private var newRequestName = ""
+    @State private var renamingGroup: RequestGroup? = nil
+    @State private var newGroupName = ""
+    @State private var showingNewGroup = false
+    @State private var selectedGroup: RequestGroup? = nil
+
     var body: some View {
         VStack {
             List {
@@ -43,30 +49,68 @@ struct SidebarView: View {
                     }
                 }
                 
-                Section("Collections") {
-                    NavigationStack() {                        
-                        ForEach(appState.collections) { collection in
-                            NavigationLink(value: collection) {
-                                Text(collection.name)
-                            }
-                            .contextMenu {
-                                Button("Delete") {
-                                    appState.deleteCollection(collection)
-                                }
-                            }
-                        }
-                    }
-                }
-                
                 Section("Groups") {
-                    ForEach(appState.groups) { group in
-                        DisclosureGroup(group.name) {
-                            ForEach(group.collections) { collection in
-                                Text(collection.name)
-                                    .padding(.leading)
+                    ForEach($appState.groups) { $group in
+                        DisclosureGroup(isExpanded: .constant(true)) {
+                            ForEach(group.requests) { request in
+                                HStack {
+                                    if renamingRequest?.id == request.id {
+                                        TextField("New Name", text: $newRequestName, onCommit: {
+                                            if let index = group.requests.firstIndex(where: { $0.id == request.id }) {
+                                                group.requests[index].name = newRequestName
+                                            }
+                                            renamingRequest = nil
+                                        })
+                                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                                    } else {
+                                        Text(request.name)
+                                            .onTapGesture(count: 2) {
+                                                renamingRequest = request
+                                                newRequestName = request.name
+                                            }
+                                            .onTapGesture {
+                                                appState.selectedRequest = request
+                                                selectedGroup = nil
+                                            }
+                                    }
+                                    Spacer()
+                                    Image(systemName: "trash")
+                                        .foregroundColor(.red)
+                                        .onTapGesture {
+                                            appState.deleteRequest(request)
+                                        }
+                                }
+                                .padding(.leading)
+                                .background(appState.selectedRequest?.id == request.id ? Color.accentColor.opacity(0.5) : Color.clear)
+                                .cornerRadius(5)
+                            }
+                        } label: {
+                            if renamingGroup?.id == group.id {
+                                TextField("New Name", text: $newGroupName, onCommit: {
+                                    if let index = appState.groups.firstIndex(where: { $0.id == group.id }) {
+                                        appState.groups[index].name = newGroupName
+                                    }
+                                    renamingGroup = nil
+                                })
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                            } else {
+                                Text(group.name)
+                                    .font(.headline)
+                                    .onTapGesture(count: 2) {
+                                        renamingGroup = group
+                                        newGroupName = group.name
+                                    }
+                                    .onTapGesture {
+                                        selectedGroup = group
+                                    }
                             }
                         }
+                        // .background(selectedGroup?.id == group.id ? Color.accentColor.opacity(0.5) : Color.clear)
+                        .cornerRadius(5)
                         .contextMenu {
+                            Button("Add New Request") {
+                                appState.addNewRequest(to: group)
+                            }
                             Button("Delete Group") {
                                 appState.deleteGroup(group)
                             }
@@ -75,61 +119,43 @@ struct SidebarView: View {
                 }
             }
             .listStyle(SidebarListStyle())
-            .navigationDestination(for: RequestCollection.self) { collection in
-                CollectionDetailView(collection: collection)
-            }
             
             HStack {
                 Button(action: {
-                    appState.addNewCollection()
+                    showingNewGroup = true
                 }) {
-                    Image(systemName: "plus")
+                    Label("New Group", systemImage: "plus")
                 }
-                .help("New Collection")
-                
-                Button(action: {
-                    appState.addNewGroup()
-                }) {
-                    Image(systemName: "folder.badge.plus")
-                }
-                .help("New Group")
-                
-                Button(action: {
-                    showingNewEnvironment = true
-                }) {
-                    Image(systemName: "gearshape")
-                }
-                .help("New Environment")
+                .buttonStyle(BorderlessButtonStyle())
+                .padding()
                 
                 Spacer()
             }
-            .padding()
         }
-        .sheet(isPresented: $showingNewEnvironment) {
+        .sheet(isPresented: $showingNewGroup) {
             VStack {
-                Text("New Environment")
+                Text("New Group")
                     .font(.headline)
                     .padding()
                 
-                TextField("Environment Name", text: $newEnvironmentName)
+                TextField("Group Name", text: $newGroupName)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
                     .padding()
                 
                 HStack {
                     Button("Cancel") {
-                        showingNewEnvironment = false
-                        newEnvironmentName = ""
+                        showingNewGroup = false
+                        newGroupName = ""
                     }
                     
                     Button("Create") {
-                        if !newEnvironmentName.isEmpty {
-                            let newEnv = AppEnvironment(name: newEnvironmentName)
-                            appState.environments.append(newEnv)
-                            showingNewEnvironment = false
-                            newEnvironmentName = ""
+                        if !newGroupName.isEmpty {
+                            appState.addNewGroup(name: newGroupName)
+                            showingNewGroup = false
+                            newGroupName = ""
                         }
                     }
-                    .disabled(newEnvironmentName.isEmpty)
+                    .disabled(newGroupName.isEmpty)
                 }
                 .padding()
             }

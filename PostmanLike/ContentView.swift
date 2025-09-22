@@ -9,26 +9,29 @@ import SwiftUI
 
 struct ContentView: View {
     @EnvironmentObject var appState: AppState
-    
+
     var body: some View {
-        HSplitView {
-            // Left sidebar - Collections and Environments
+        NavigationView {
             SidebarView()
-                .frame(minWidth: 150)
             
-            // Middle - Request editor
-            MainView()
-                .frame(minWidth: 400)
-            
-            // Right sidebar - Response viewer
-            ResponseView()
-                .frame(minWidth: 450)
-        }
-        .sheet(isPresented: $appState.showImportPostman) {
-            ImportPostmanView()
-        }
-        .sheet(isPresented: $appState.showLoadProject) {
-            LoadProjectView()
+            // if appState.selectedRequest != nil {
+                HSplitView {
+                    MainView()
+                        .frame(minWidth: 400)
+                    ResponseView()
+                        .frame(minWidth: 450)
+                }
+                .sheet(isPresented: $appState.showImportPostman) {
+                    ImportPostmanView()
+                }
+                .sheet(isPresented: $appState.showLoadProject) {
+                    LoadProjectView()
+                }
+            // } else {
+            //     Text("Select a request to begin")
+            //         .foregroundColor(.secondary)
+            //         .frame(maxWidth: .infinity, maxHeight: .infinity)
+            // }
         }
     }
 }
