@@ -1,3 +1,4 @@
+
 //
 //  ContentView.swift
 //  PostmanLike
@@ -20,12 +21,6 @@ struct ContentView: View {
                         .frame(minWidth: 400)
                     ResponseView()
                         .frame(minWidth: 450)
-                }
-                .sheet(isPresented: $appState.showImportPostman) {
-                    ImportPostmanView(isPresented: $appState.showImportPostman)
-                }
-                .sheet(isPresented: $appState.showLoadProject) {
-                    LoadProjectView(isPresented: $appState.showLoadProject)
                 }
             // } else {
             //     Text("Select a request to begin")
