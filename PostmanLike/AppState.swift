@@ -1,4 +1,3 @@
-
 //
 //  AppState.swift
 //  PostmanLike
@@ -64,10 +63,17 @@ class AppState: ObservableObject {
     }
     
     func importPostmanCollection(from data: Data) {
-        // Implementation for importing Postman collection
         let importer = PostmanImporter()
-        if let importedGroups = importer.importFromData(data) {
-            self.groups.append(contentsOf: importedGroups)
+        if let projectData = importer.importFromData(data) {
+            self.groups.append(contentsOf: projectData.groups)
+            
+            for environment in projectData.environments {
+                if let index = self.environments.firstIndex(where: { $0.name == environment.name }) {
+                    self.environments[index] = environment
+                } else {
+                    self.environments.append(environment)
+                }
+            }
         }
     }
     

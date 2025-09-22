@@ -1,3 +1,4 @@
+
 //
 //  ImportExportViews.swift
 //  PostmanLike
@@ -41,7 +42,7 @@ struct ExportProjectView: View {
             isPresented: $isPresented,
             document: ProjectDocument(appState: appState),
             contentType: .json,
-            defaultFilename: "PostmanLikeProject"
+            defaultFilename: "export"
         ) { result in
             switch result {
             case .success(let url):
@@ -63,7 +64,7 @@ struct SaveProjectView: View {
             isPresented: $isPresented,
             document: ProjectDocument(appState: appState),
             contentType: .json,
-            defaultFilename: "PostmanLikeProject"
+            defaultFilename: "filename"
         ) { result in
             switch result {
             case .success(let url):
@@ -126,24 +127,15 @@ struct ProjectDocument: FileDocument {
 
 // MARK: - Import/Export Utilities
 class PostmanImporter {
-    func importFromData(_ data: Data) -> [RequestGroup]? {
-        // Implementation for parsing Postman export format
-        print("Importing Postman collection...")
-        // For now, return some sample data
-        let sampleRequest = Request(
-            name: "Imported Request",
-            method: "GET",
-            url: "https://jsonplaceholder.typicode.com/posts",
-            headers: [Header(key: "Content-Type", value: "application/json")],
-            body: ""
-        )
-        
-        let sampleGroup = RequestGroup(
-            name: "Imported Group",
-            requests: [sampleRequest]
-        )
-        
-        return [sampleGroup]
+    func importFromData(_ data: Data) -> (groups: [RequestGroup], environments: [AppEnvironment])? {
+        let decoder = JSONDecoder()
+        do {
+            let projectData = try decoder.decode(ProjectData.self, from: data)
+            return (projectData.groups, projectData.environments)
+        } catch {
+            print("Error decoding project: \(error)")
+            return nil
+        }
     }
 }
 
