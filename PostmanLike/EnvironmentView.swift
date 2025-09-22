@@ -15,7 +15,7 @@ struct EnvironmentView: View {
         VStack {
             HStack {
                 Picker("Environment", selection: $selectedEnvironmentId) {
-                    Text("No Environment").tag(nil as UUID?)
+//                    Text("No Environment").tag(nil as UUID?)
                     ForEach(appState.environments) { environment in
                         Text(environment.name).tag(environment.id as UUID?)
                     }

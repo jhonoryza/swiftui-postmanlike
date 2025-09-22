@@ -18,7 +18,6 @@ class AppState: ObservableObject {
     
     @Published var showImportPostman = false
     @Published var showLoadProject = false
-    @Published var isRequesting = false
     
     init() {
         // Load sample data for demonstration

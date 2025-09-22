@@ -17,6 +17,8 @@ struct RequestView: View {
     @State private var bodyText: String = ""
     @State private var bodyType: BodyType = .json
     @State private var formData: [FormDataItem] = []
+    @State private var isRequesting = false
+    @State private var currentTask: URLSessionDataTask?
 
     var body: some View {
         ZStack {
@@ -31,11 +33,12 @@ struct RequestView: View {
                             Text("DELETE").tag("DELETE")
                             Text("PATCH").tag("PATCH")
                         }
-                        .frame(width: 120)
+                        .frame(width: 100)
                         
                         TextField("URL", text: $url)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
-                        if(appState.isRequesting) {
+                        
+                        if isRequesting {
                             Button("Cancel") {
                                 cancelRequest()
                             }
@@ -44,11 +47,12 @@ struct RequestView: View {
                                 sendRequest()
                             }
                         }
-                    }.padding(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
-
-                    ProgressView(value: appState.isRequesting ? 1.0 : 0)
+                    }
+                    .padding(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
+                    
+                    ProgressView(value: isRequesting ? 1.0 : 0)
                         .padding(EdgeInsets(top: 0, leading: 20, bottom: 0, trailing: 20))
-
+                        
                     // Headers/Body selector
                     Picker("", selection: $selectedTab) {
                         Text("Headers").tag("Headers")
@@ -110,17 +114,18 @@ struct RequestView: View {
     }
     
     private func cancelRequest() {
-        appState.isRequesting = false;
+        isRequesting = false
+        currentTask?.cancel()
     }
     
     private func sendRequest() {
-        appState.isRequesting = true
+        isRequesting = true
         let startTime = Date()
         
         let finalURL = replaceEnvironmentVariables(in: url)
         guard let url = URL(string: finalURL) else {
             appState.response = ResponseData(error: "Invalid URL")
-            appState.isRequesting = false
+            isRequesting = false
             return
         }
         
@@ -156,11 +161,14 @@ struct RequestView: View {
             }
         }
         
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+        currentTask = URLSession.shared.dataTask(with: request) { data, response, error in
             let time = Date().timeIntervalSince(startTime)
             DispatchQueue.main.async {
-                appState.isRequesting = false
+                isRequesting = false
                 if let error = error {
+                    if (error as NSError).code == NSURLErrorCancelled {
+                        return // Request was cancelled
+                    }
                     appState.response = ResponseData(error: error.localizedDescription, time: time)
                     return
                 }
@@ -188,7 +196,7 @@ struct RequestView: View {
             }
         }
         
-        task.resume()
+        currentTask?.resume()
     }
     
     private func replaceEnvironmentVariables(in string: String) -> String {

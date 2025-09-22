@@ -87,7 +87,7 @@ enum BodyType: String, CaseIterable, Codable {
     case formData = "Form Data"
 }
 
-struct ResponseData: Identifiable, Codable {
+class ResponseData: Identifiable, Codable {
     let id: UUID
     var statusCode: Int?
     var headers: [Header]

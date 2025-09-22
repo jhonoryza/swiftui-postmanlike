@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ResponseView: View {
     @EnvironmentObject var appState: AppState
-    @State private var selectedTab = "Body"
+    @State private var selectedTab = "Raw"
     
     var body: some View {
         VStack {
@@ -31,26 +31,38 @@ struct ResponseView: View {
                 .padding()
                                 
                 Picker("", selection: $selectedTab) {
-                    Text("Body").tag("Body")
+                    Text("Json").tag("Json")
+                    Text("Raw").tag("Raw")
                     Text("Headers").tag("Headers")
                 }
                 .pickerStyle(SegmentedPickerStyle())
                 .padding(.horizontal)
                 
-                if selectedTab == "Body" {
-                    ScrollView {
-                        Text(response.body.prettyPrintedJSON ?? response.body)
-                            .font(.system(.body, design: .monospaced))
+                if selectedTab == "Json" {
+                    if let data = (response.body.prettyPrintedJSON ?? response.body).data(using: .utf8),
+                       let json = try? JSONSerialization.jsonObject(with: data) {
+                        let rootNode = parseJSON(json, key: "root")
+
+                        JSONView(root: rootNode)
                             .padding()
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                    } else {
+                        Text("Invalid JSON")
+                            .foregroundStyle(.red)
                     }
+                } else if selectedTab == "Raw" {
+                    TextEditor(text: .constant(response.body.prettyPrintedJSON ?? response.body))
+                        .font(.system(.body, design: .monospaced))
+                        .scrollContentBackground(.hidden)
+                        .padding()
                 } else {
                     List(response.headers) { header in
                         HStack {
                             Text(header.key)
+                                .textSelection(.enabled)
                                 .fontWeight(.bold)
                             Spacer()
                             Text(header.value)
+                                .textSelection(.enabled)
                         }
                     }
                 }
@@ -74,6 +86,55 @@ extension String {
             return String(data: prettyData, encoding: .utf8)
         } catch {
             return nil
+        }
+    }
+}
+
+struct JSONNode: Identifiable {
+    let id = UUID()
+    let key: String
+    let value: String?
+    var children: [JSONNode]?
+}
+
+func parseJSON(_ json: Any, key: String = "root") -> JSONNode {
+    if let dict = json as? [String: Any] {
+        return JSONNode(
+            key: key,
+            value: nil,
+            children: dict.map { parseJSON($0.value, key: $0.key) }
+        )
+    } else if let array = json as? [Any] {
+        return JSONNode(
+            key: key,
+            value: nil,
+            children: array.enumerated().map { parseJSON($0.element, key: "[\($0.offset)]") }
+        )
+    } else {
+        return JSONNode(key: key, value: "\(json)", children: nil)
+    }
+}
+
+
+struct JSONView: View {
+    let root: JSONNode
+
+    var body: some View {
+        List {
+            OutlineGroup([root], children: \.children) { node in
+                HStack {
+                    Text(node.key)
+                        .textSelection(.enabled)
+                        .bold()
+                    if let value = node.value {
+                        Spacer()
+                        Text(value)
+                            .textSelection(.enabled)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .font(.system(.body, design: .monospaced))
+            }
         }
     }
 }
