@@ -34,7 +34,7 @@ struct RequestView: View {
                             Text("DELETE").tag("DELETE")
                             Text("PATCH").tag("PATCH")
                         }
-                        .frame(width: 100)
+                        .frame(width: 120)
                         
                         TextField("URL", text: selectedRequest.url)
                             .textFieldStyle(RoundedBorderTextFieldStyle())

@@ -44,7 +44,7 @@ class AppState: ObservableObject {
         )
         
         let sampleGroup = RequestGroup(
-            name: "Sample Group",
+            name: "Collection",
             requests: [sampleRequest]
         )
         

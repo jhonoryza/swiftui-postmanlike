@@ -14,6 +14,7 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             SidebarView()
+                .frame(minWidth: 200)
             
             // if appState.selectedRequest != nil {
                 HSplitView {
