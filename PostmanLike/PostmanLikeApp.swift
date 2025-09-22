@@ -17,19 +17,19 @@ struct PostmanLikeApp: App {
             ContentView()
                 .environmentObject(appState)
                 .sheet(isPresented: $appState.showImportPostman) {
-                    ImportPostmanView()
+                    ImportPostmanView(isPresented: $appState.showImportPostman)
                         .environmentObject(appState)
                 }
                 .sheet(isPresented: $appState.showExportProject) {
-                    ExportProjectView()
+                    ExportProjectView(isPresented: $appState.showExportProject)
                         .environmentObject(appState)
                 }
                 .sheet(isPresented: $appState.showLoadProject) {
-                    LoadProjectView()
+                    LoadProjectView(isPresented: $appState.showLoadProject)
                         .environmentObject(appState)
                 }
                 .sheet(isPresented: $appState.showSaveProject) {
-                    SaveProjectView()
+                    SaveProjectView(isPresented: $appState.showSaveProject)
                         .environmentObject(appState)
                 }
         }

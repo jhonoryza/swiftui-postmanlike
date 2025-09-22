@@ -22,10 +22,10 @@ struct ContentView: View {
                         .frame(minWidth: 450)
                 }
                 .sheet(isPresented: $appState.showImportPostman) {
-                    ImportPostmanView()
+                    ImportPostmanView(isPresented: $appState.showImportPostman)
                 }
                 .sheet(isPresented: $appState.showLoadProject) {
-                    LoadProjectView()
+                    LoadProjectView(isPresented: $appState.showLoadProject)
                 }
             // } else {
             //     Text("Select a request to begin")

@@ -1,4 +1,3 @@
-
 //
 //  ImportExportViews.swift
 //  PostmanLike
@@ -11,22 +10,12 @@ import UniformTypeIdentifiers
 
 struct ImportPostmanView: View {
     @EnvironmentObject var appState: AppState
-    @Environment(\.presentationMode) var presentationMode
-    @State private var isFilePickerPresented = false
+    @Binding var isPresented: Bool
 
     var body: some View {
-        VStack {
-            Text("Import Postman Collection")
-                .font(.headline)
-                .padding()
-
-            Button("Select Postman Collection File") {
-                isFilePickerPresented = true
-            }
-            .padding()
-        }
+        VStack {}
         .fileImporter(
-            isPresented: $isFilePickerPresented,
+            isPresented: $isPresented,
             allowedContentTypes: [.json],
             allowsMultipleSelection: false
         ) { result in
@@ -34,7 +23,6 @@ struct ImportPostmanView: View {
                 let selectedFile: URL = try result.get().first!
                 let data = try Data(contentsOf: selectedFile)
                 appState.importPostmanCollection(from: data)
-                presentationMode.wrappedValue.dismiss()
             } catch {
                 // Handle error
                 print("Error selecting or reading file: \(error)")
@@ -45,22 +33,12 @@ struct ImportPostmanView: View {
 
 struct ExportProjectView: View {
     @EnvironmentObject var appState: AppState
-    @Environment(\.presentationMode) var presentationMode
-    @State private var isFolderPickerPresented = false
+    @Binding var isPresented: Bool
 
     var body: some View {
-        VStack {
-            Text("Export Project")
-                .font(.headline)
-                .padding()
-
-            Button("Select a Folder to Export") {
-                isFolderPickerPresented = true
-            }
-            .padding()
-        }
+        VStack {}
         .fileExporter(
-            isPresented: $isFolderPickerPresented,
+            isPresented: $isPresented,
             document: ProjectDocument(appState: appState),
             contentType: .json,
             defaultFilename: "PostmanLikeProject"
@@ -71,32 +49,21 @@ struct ExportProjectView: View {
             case .failure(let error):
                 print("Error exporting project: \(error)")
             }
-            presentationMode.wrappedValue.dismiss()
         }
     }
 }
 
 struct SaveProjectView: View {
     @EnvironmentObject var appState: AppState
-    @Environment(\.presentationMode) var presentationMode
-    @State private var isFileSaverPresented = true
+    @Binding var isPresented: Bool
 
     var body: some View {
-        VStack {
-            Text("Save Project")
-                .font(.headline)
-                .padding()
-
-            Button("Select Where to Save the Project") {
-                isFileSaverPresented = true
-            }
-            .padding()
-        }
+        VStack {}
         .fileExporter(
-            isPresented: $isFileSaverPresented,
+            isPresented: $isPresented,
             document: ProjectDocument(appState: appState),
             contentType: .json,
-            defaultFilename: "filename"
+            defaultFilename: "PostmanLikeProject"
         ) { result in
             switch result {
             case .success(let url):
@@ -104,29 +71,18 @@ struct SaveProjectView: View {
             case .failure(let error):
                 print("Error saving project: \(error)")
             }
-            presentationMode.wrappedValue.dismiss()
         }
     }
 }
 
 struct LoadProjectView: View {
     @EnvironmentObject var appState: AppState
-    @Environment(\.presentationMode) var presentationMode
-    @State private var isFilePickerPresented = false
+    @Binding var isPresented: Bool
 
     var body: some View {
-        VStack {
-            Text("Load Project")
-                .font(.headline)
-                .padding()
-
-            Button("Select Project File to Load") {
-                isFilePickerPresented = true
-            }
-            .padding()
-        }
+        VStack {}
         .fileImporter(
-            isPresented: $isFilePickerPresented,
+            isPresented: $isPresented,
             allowedContentTypes: [.json],
             allowsMultipleSelection: false
         ) { result in
@@ -134,7 +90,6 @@ struct LoadProjectView: View {
                 let selectedFile: URL = try result.get().first!
                 let data = try Data(contentsOf: selectedFile)
                 appState.loadProject(from: data)
-                presentationMode.wrappedValue.dismiss()
             } catch {
                 // Handle error
                 print("Error selecting or reading file: \(error)")
@@ -153,7 +108,14 @@ struct ProjectDocument: FileDocument {
     }
     
     init(configuration: ReadConfiguration) throws {
-        fatalError("init(configuration:) has not been implemented")
+        if let data = configuration.file.regularFileContents {
+            let projectData = try JSONDecoder().decode(ProjectData.self, from: data)
+            self.appState = AppState()
+            self.appState.groups = projectData.groups
+            self.appState.environments = projectData.environments
+        } else {
+            fatalError("Cannot read file")
+        }
     }
 
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
@@ -206,4 +168,3 @@ struct ProjectData: Codable {
     let groups: [RequestGroup]
     let environments: [AppEnvironment]
 }
-
