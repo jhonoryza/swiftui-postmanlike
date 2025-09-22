@@ -11,6 +11,15 @@
 		3070A2022E80C18000802515 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3070A2012E80C18000802515 /* ContentView.swift */; };
 		3070A2042E80C18100802515 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3070A2032E80C18100802515 /* Assets.xcassets */; };
 		3070A2072E80C18100802515 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3070A2062E80C18100802515 /* Preview Assets.xcassets */; };
+		3070A20F2E80C19000802515 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3070A20E2E80C19000802515 /* Models.swift */; };
+		3070A2112E80C1AA00802515 /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3070A2102E80C1AA00802515 /* AppState.swift */; };
+		3070A2132E80C1EA00802515 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3070A2122E80C1EA00802515 /* SidebarView.swift */; };
+		3070A2152E80C20300802515 /* RequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3070A2142E80C20300802515 /* RequestView.swift */; };
+		3070A2172E80C21600802515 /* ResponseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3070A2162E80C21600802515 /* ResponseView.swift */; };
+		3070A2192E80C22500802515 /* SupportingViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3070A2182E80C22500802515 /* SupportingViews.swift */; };
+		3070A21B2E80C23600802515 /* ImportExportViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3070A21A2E80C23600802515 /* ImportExportViews.swift */; };
+		3070A21D2E80C23600802517 /* EnvironmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3070A21C2E80C23600802516 /* EnvironmentView.swift */; };
+		3070A21F2E80C23600802519 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3070A21E2E80C23600802518 /* MainView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +29,15 @@
 		3070A2032E80C18100802515 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		3070A2062E80C18100802515 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		3070A2082E80C18100802515 /* PostmanLike.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = PostmanLike.entitlements; sourceTree = "<group>"; };
+		3070A20E2E80C19000802515 /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
+		3070A2102E80C1AA00802515 /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		3070A2122E80C1EA00802515 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
+		3070A2142E80C20300802515 /* RequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestView.swift; sourceTree = "<group>"; };
+		3070A2162E80C21600802515 /* ResponseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseView.swift; sourceTree = "<group>"; };
+		3070A2182E80C22500802515 /* SupportingViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportingViews.swift; sourceTree = "<group>"; };
+		3070A21A2E80C23600802515 /* ImportExportViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportExportViews.swift; sourceTree = "<group>"; };
+		3070A21C2E80C23600802516 /* EnvironmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentView.swift; sourceTree = "<group>"; };
+		3070A21E2E80C23600802518 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,6 +75,15 @@
 				3070A2032E80C18100802515 /* Assets.xcassets */,
 				3070A2082E80C18100802515 /* PostmanLike.entitlements */,
 				3070A2052E80C18100802515 /* Preview Content */,
+				3070A20E2E80C19000802515 /* Models.swift */,
+				3070A2102E80C1AA00802515 /* AppState.swift */,
+				3070A2122E80C1EA00802515 /* SidebarView.swift */,
+				3070A2142E80C20300802515 /* RequestView.swift */,
+				3070A2162E80C21600802515 /* ResponseView.swift */,
+				3070A2182E80C22500802515 /* SupportingViews.swift */,
+				3070A21A2E80C23600802515 /* ImportExportViews.swift */,
+				3070A21C2E80C23600802516 /* EnvironmentView.swift */,
+				3070A21E2E80C23600802518 /* MainView.swift */,
 			);
 			path = PostmanLike;
 			sourceTree = "<group>";
@@ -139,8 +166,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3070A20F2E80C19000802515 /* Models.swift in Sources */,
+				3070A21B2E80C23600802515 /* ImportExportViews.swift in Sources */,
+				3070A2192E80C22500802515 /* SupportingViews.swift in Sources */,
+				3070A2172E80C21600802515 /* ResponseView.swift in Sources */,
 				3070A2022E80C18000802515 /* ContentView.swift in Sources */,
+				3070A2152E80C20300802515 /* RequestView.swift in Sources */,
+				3070A2132E80C1EA00802515 /* SidebarView.swift in Sources */,
 				3070A2002E80C18000802515 /* PostmanLikeApp.swift in Sources */,
+				3070A2112E80C1AA00802515 /* AppState.swift in Sources */,
+				3070A21D2E80C23600802517 /* EnvironmentView.swift in Sources */,
+				3070A21F2E80C23600802519 /* MainView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -271,6 +307,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = PostmanLike/PostmanLike.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
@@ -296,6 +333,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = PostmanLike/PostmanLike.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;

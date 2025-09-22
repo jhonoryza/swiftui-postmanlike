@@ -8,17 +8,27 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject var appState: AppState
+    
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        HSplitView {
+            // Left sidebar - Collections and Environments
+            SidebarView()
+                .frame(minWidth: 150)
+            
+            // Middle - Request editor
+            MainView()
+                .frame(minWidth: 400)
+            
+            // Right sidebar - Response viewer
+            ResponseView()
+                .frame(minWidth: 450)
         }
-        .padding()
+        .sheet(isPresented: $appState.showImportPostman) {
+            ImportPostmanView()
+        }
+        .sheet(isPresented: $appState.showLoadProject) {
+            LoadProjectView()
+        }
     }
-}
-
-#Preview {
-    ContentView()
 }
