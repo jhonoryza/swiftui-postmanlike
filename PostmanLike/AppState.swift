@@ -1,4 +1,3 @@
-
 //
 //  AppState.swift
 //  PostmanLike
@@ -20,6 +19,8 @@ class AppState: ObservableObject {
     @Published var showLoadProject = false
     @Published var showExportPostman = false
     @Published var showSaveProject = false
+    @Published var showImportEnvironments = false
+    @Published var showExportEnvironments = false
     
     var projectData: ProjectData {
         ProjectData(groups: groups, environments: environments)
@@ -75,6 +76,21 @@ class AppState: ObservableObject {
                     self.environments.append(environment)
                 }
             }
+        }
+    }
+    
+    func importEnvironments(from data: Data) {
+        let decoder = JSONDecoder()
+        do {
+            let postmanEnvironment = try decoder.decode(PostmanEnvironment.self, from: data)
+            let appEnvironment = postmanEnvironment.toAppEnvironment()
+            if let index = self.environments.firstIndex(where: { $0.name == appEnvironment.name }) {
+                self.environments[index] = appEnvironment
+            } else {
+                self.environments.append(appEnvironment)
+            }
+        } catch {
+            print("Error decoding environments: \(error)")
         }
     }
     
