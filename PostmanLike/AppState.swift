@@ -1,3 +1,4 @@
+
 //
 //  AppState.swift
 //  PostmanLike
@@ -17,6 +18,12 @@ class AppState: ObservableObject {
     
     @Published var showImportPostman = false
     @Published var showLoadProject = false
+    @Published var showExportProject = false
+    @Published var showSaveProject = false
+    
+    var projectData: ProjectData {
+        ProjectData(groups: groups, environments: environments)
+    }
     
     init() {
         // Load sample data for demonstration
@@ -54,12 +61,6 @@ class AppState: ObservableObject {
     func addNewGroup(name: String) {
         let newGroup = RequestGroup(name: name, requests: [])
         groups.append(newGroup)
-    }
-    
-    func exportProject() {
-        // Implementation for exporting project
-        let exporter = ProjectExporter(appState: self)
-        exporter.exportProject()
     }
     
     func importPostmanCollection(from data: Data) {

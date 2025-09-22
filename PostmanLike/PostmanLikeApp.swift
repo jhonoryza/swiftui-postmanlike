@@ -1,3 +1,4 @@
+
 //
 //  PostmanLikeApp.swift
 //  PostmanLike
@@ -15,6 +16,22 @@ struct PostmanLikeApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(appState)
+                .sheet(isPresented: $appState.showImportPostman) {
+                    ImportPostmanView()
+                        .environmentObject(appState)
+                }
+                .sheet(isPresented: $appState.showExportProject) {
+                    ExportProjectView()
+                        .environmentObject(appState)
+                }
+                .sheet(isPresented: $appState.showLoadProject) {
+                    LoadProjectView()
+                        .environmentObject(appState)
+                }
+                .sheet(isPresented: $appState.showSaveProject) {
+                    SaveProjectView()
+                        .environmentObject(appState)
+                }
         }
         .commands {
             SidebarCommands()
@@ -22,15 +39,24 @@ struct PostmanLikeApp: App {
                 Button("Import from Postman") {
                     appState.showImportPostman = true
                 }
+                .keyboardShortcut("i", modifiers: .command)
                 
                 Button("Export Project") {
-                    appState.exportProject()
+                    appState.showExportProject = true
                 }
+                .keyboardShortcut("e", modifiers: .command)
                 
-                Button("Load Project") {
+                Button("Open Project") {
                     appState.showLoadProject = true
                 }
-                Button("Save") {
+                .keyboardShortcut("o", modifiers: .command)
+                
+                Button("Save Project") {
+                    appState.showSaveProject = true
+                }
+                .keyboardShortcut("s", modifiers: [.shift, .command])
+                
+                Button("Save Request") {
                     NotificationCenter.default.post(name: .save, object: nil)
                 }
                 .keyboardShortcut("s", modifiers: .command)

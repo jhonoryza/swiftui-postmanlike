@@ -1,3 +1,4 @@
+
 //
 //  ImportExportViews.swift
 //  PostmanLike
@@ -11,116 +12,153 @@ import UniformTypeIdentifiers
 struct ImportPostmanView: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.presentationMode) var presentationMode
-    @State private var importedFile: URL?
-    
+    @State private var isFilePickerPresented = false
+
     var body: some View {
         VStack {
             Text("Import Postman Collection")
                 .font(.headline)
                 .padding()
-            
-            Text("Drag and drop your Postman export file here or click to select")
-                .frame(width: 400, height: 200)
-                .background(Color.gray.opacity(0.2))
-                .cornerRadius(10)
-                .onDrop(of: [.fileURL], isTargeted: nil) { providers in
-                    guard let provider = providers.first else { return false }
-                    
-                    _ = provider.loadObject(ofClass: URL.self) { object, error in
-                        if let url = object {
-                            DispatchQueue.main.async {
-                                importedFile = url
-                            }
-                        }
-                    }
-                    
-                    return true
-                }
-            
-            if let file = importedFile {
-                Text("Selected file: \(file.lastPathComponent)")
-                    .padding()
-            }
-            
-            HStack {
-                Button("Cancel") {
-                    presentationMode.wrappedValue.dismiss()
-                }
-                
-                Button("Import") {
-                    if let file = importedFile {
-                        do {
-                            let data = try Data(contentsOf: file)
-                            appState.importPostmanCollection(from: data)
-                            presentationMode.wrappedValue.dismiss()
-                        } catch {
-                            print("Error reading file: \(error)")
-                        }
-                    }
-                }
-                .disabled(importedFile == nil)
+
+            Button("Select Postman Collection File") {
+                isFilePickerPresented = true
             }
             .padding()
         }
-        .padding()
+        .fileImporter(
+            isPresented: $isFilePickerPresented,
+            allowedContentTypes: [.json],
+            allowsMultipleSelection: false
+        ) { result in
+            do {
+                let selectedFile: URL = try result.get().first!
+                let data = try Data(contentsOf: selectedFile)
+                appState.importPostmanCollection(from: data)
+                presentationMode.wrappedValue.dismiss()
+            } catch {
+                // Handle error
+                print("Error selecting or reading file: \(error)")
+            }
+        }
+    }
+}
+
+struct ExportProjectView: View {
+    @EnvironmentObject var appState: AppState
+    @Environment(\.presentationMode) var presentationMode
+    @State private var isFolderPickerPresented = false
+
+    var body: some View {
+        VStack {
+            Text("Export Project")
+                .font(.headline)
+                .padding()
+
+            Button("Select a Folder to Export") {
+                isFolderPickerPresented = true
+            }
+            .padding()
+        }
+        .fileExporter(
+            isPresented: $isFolderPickerPresented,
+            document: ProjectDocument(appState: appState),
+            contentType: .json,
+            defaultFilename: "PostmanLikeProject"
+        ) { result in
+            switch result {
+            case .success(let url):
+                print("Project exported to \(url)")
+            case .failure(let error):
+                print("Error exporting project: \(error)")
+            }
+            presentationMode.wrappedValue.dismiss()
+        }
+    }
+}
+
+struct SaveProjectView: View {
+    @EnvironmentObject var appState: AppState
+    @Environment(\.presentationMode) var presentationMode
+    @State private var isFileSaverPresented = true
+
+    var body: some View {
+        VStack {
+            Text("Save Project")
+                .font(.headline)
+                .padding()
+
+            Button("Select Where to Save the Project") {
+                isFileSaverPresented = true
+            }
+            .padding()
+        }
+        .fileExporter(
+            isPresented: $isFileSaverPresented,
+            document: ProjectDocument(appState: appState),
+            contentType: .json,
+            defaultFilename: "filename"
+        ) { result in
+            switch result {
+            case .success(let url):
+                print("Project saved to \(url)")
+            case .failure(let error):
+                print("Error saving project: \(error)")
+            }
+            presentationMode.wrappedValue.dismiss()
+        }
     }
 }
 
 struct LoadProjectView: View {
     @EnvironmentObject var appState: AppState
     @Environment(\.presentationMode) var presentationMode
-    @State private var projectFile: URL?
-    
+    @State private var isFilePickerPresented = false
+
     var body: some View {
         VStack {
             Text("Load Project")
                 .font(.headline)
                 .padding()
-            
-            Text("Drag and drop your project file here or click to select")
-                .frame(width: 400, height: 200)
-                .background(Color.gray.opacity(0.2))
-                .cornerRadius(10)
-                .onDrop(of: [.fileURL], isTargeted: nil) { providers in
-                    guard let provider = providers.first else { return false }
-                    
-                    _ = provider.loadObject(ofClass: URL.self) { object, error in
-                        if let url = object {
-                            DispatchQueue.main.async {
-                                projectFile = url
-                            }
-                        }
-                    }
-                    
-                    return true
-                }
-            
-            if let file = projectFile {
-                Text("Selected file: \(file.lastPathComponent)")
-                    .padding()
-            }
-            
-            HStack {
-                Button("Cancel") {
-                    presentationMode.wrappedValue.dismiss()
-                }
-                
-                Button("Load") {
-                    if let file = projectFile {
-                        do {
-                            let data = try Data(contentsOf: file)
-                            appState.loadProject(from: data)
-                            presentationMode.wrappedValue.dismiss()
-                        } catch {
-                            print("Error reading file: \(error)")
-                        }
-                    }
-                }
-                .disabled(projectFile == nil)
+
+            Button("Select Project File to Load") {
+                isFilePickerPresented = true
             }
             .padding()
         }
-        .padding()
+        .fileImporter(
+            isPresented: $isFilePickerPresented,
+            allowedContentTypes: [.json],
+            allowsMultipleSelection: false
+        ) { result in
+            do {
+                let selectedFile: URL = try result.get().first!
+                let data = try Data(contentsOf: selectedFile)
+                appState.loadProject(from: data)
+                presentationMode.wrappedValue.dismiss()
+            } catch {
+                // Handle error
+                print("Error selecting or reading file: \(error)")
+            }
+        }
+    }
+}
+
+struct ProjectDocument: FileDocument {
+    static var readableContentTypes: [UTType] { [.json] }
+    
+    var appState: AppState
+
+    init(appState: AppState) {
+        self.appState = appState
+    }
+    
+    init(configuration: ReadConfiguration) throws {
+        fatalError("init(configuration:) has not been implemented")
+    }
+
+    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+        let data = try JSONEncoder().encode(appState.projectData)
+        return FileWrapper(regularFileWithContents: data)
     }
 }
 
@@ -147,36 +185,6 @@ class PostmanImporter {
     }
 }
 
-class ProjectExporter {
-    let appState: AppState
-    
-    init(appState: AppState) {
-        self.appState = appState
-    }
-    
-    func exportProject() {
-        // Implementation for exporting project to file
-        print("Exporting project...")
-        
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .prettyPrinted
-        
-        do {
-            let projectData = ProjectData(
-                groups: appState.groups,
-                environments: appState.environments
-            )
-            
-            let _ = try encoder.encode(projectData)
-            
-            // In a real app, you would show a save panel here
-            print("Project data encoded successfully")
-        } catch {
-            print("Error encoding project: \(error)")
-        }
-    }
-}
-
 class ProjectLoader {
     func loadProject(from data: Data) -> (groups: [RequestGroup], environments: [AppEnvironment])? {
         // Implementation for loading project from file
@@ -198,3 +206,4 @@ struct ProjectData: Codable {
     let groups: [RequestGroup]
     let environments: [AppEnvironment]
 }
+
