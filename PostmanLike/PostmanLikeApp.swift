@@ -36,12 +36,12 @@ struct PostmanLikeApp: App {
         .commands {
             SidebarCommands()
             CommandGroup(after: .newItem) {
-                Button("Import from Postman") {
+                Button("Import Postman Collection") {
                     appState.showImportPostman = true
                 }
                 .keyboardShortcut("i", modifiers: .command)
                 
-                Button("Export Project") {
+                Button("Export as Postman Collection") {
                     appState.showExportProject = true
                 }
                 .keyboardShortcut("e", modifiers: .command)
