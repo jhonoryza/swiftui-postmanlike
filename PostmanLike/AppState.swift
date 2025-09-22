@@ -1,3 +1,4 @@
+
 //
 //  AppState.swift
 //  PostmanLike
@@ -17,7 +18,7 @@ class AppState: ObservableObject {
     
     @Published var showImportPostman = false
     @Published var showLoadProject = false
-    @Published var showExportProject = false
+    @Published var showExportPostman = false
     @Published var showSaveProject = false
     
     var projectData: ProjectData {

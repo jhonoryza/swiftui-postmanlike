@@ -16,7 +16,6 @@
 		3070A2132E80C1EA00802515 /* SidebarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3070A2122E80C1EA00802515 /* SidebarView.swift */; };
 		3070A2152E80C20300802515 /* RequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3070A2142E80C20300802515 /* RequestView.swift */; };
 		3070A2172E80C21600802515 /* ResponseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3070A2162E80C21600802515 /* ResponseView.swift */; };
-		3070A21B2E80C23600802515 /* ImportExportViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3070A21A2E80C23600802515 /* ImportExportViews.swift */; };
 		3070A21D2E80C23600802517 /* EnvironmentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3070A21C2E80C23600802516 /* EnvironmentView.swift */; };
 		3070A21F2E80C23600802519 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3070A21E2E80C23600802518 /* MainView.swift */; };
 /* End PBXBuildFile section */
@@ -33,7 +32,6 @@
 		3070A2122E80C1EA00802515 /* SidebarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarView.swift; sourceTree = "<group>"; };
 		3070A2142E80C20300802515 /* RequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestView.swift; sourceTree = "<group>"; };
 		3070A2162E80C21600802515 /* ResponseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResponseView.swift; sourceTree = "<group>"; };
-		3070A21A2E80C23600802515 /* ImportExportViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportExportViews.swift; sourceTree = "<group>"; };
 		3070A21C2E80C23600802516 /* EnvironmentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EnvironmentView.swift; sourceTree = "<group>"; };
 		3070A21E2E80C23600802518 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -78,7 +76,6 @@
 				3070A2122E80C1EA00802515 /* SidebarView.swift */,
 				3070A2142E80C20300802515 /* RequestView.swift */,
 				3070A2162E80C21600802515 /* ResponseView.swift */,
-				3070A21A2E80C23600802515 /* ImportExportViews.swift */,
 				3070A21C2E80C23600802516 /* EnvironmentView.swift */,
 				3070A21E2E80C23600802518 /* MainView.swift */,
 			);
@@ -164,7 +161,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				3070A20F2E80C19000802515 /* Models.swift in Sources */,
-				3070A21B2E80C23600802515 /* ImportExportViews.swift in Sources */,
 				3070A2172E80C21600802515 /* ResponseView.swift in Sources */,
 				3070A2022E80C18000802515 /* ContentView.swift in Sources */,
 				3070A2152E80C20300802515 /* RequestView.swift in Sources */,
