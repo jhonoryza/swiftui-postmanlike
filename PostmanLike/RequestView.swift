@@ -35,7 +35,7 @@ struct RequestView: View {
                         
                         TextField("URL", text: $url)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
-                        if(!appState.isRequesting) {
+                        if(appState.isRequesting) {
                             Button("Cancel") {
                                 cancelRequest()
                             }
