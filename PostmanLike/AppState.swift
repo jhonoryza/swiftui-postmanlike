@@ -33,7 +33,7 @@ class AppState: ObservableObject {
         currentEnvironment = sampleEnv
         
         let sampleRequest = Request(
-            name: "Posts List",
+            name: "posts index",
             method: "GET",
             url: "{{baseUrl}}/api/posts",
             headers: [
@@ -44,7 +44,7 @@ class AppState: ObservableObject {
         )
         
         let sampleGroup = RequestGroup(
-            name: "Collection",
+            name: "personal",
             requests: [sampleRequest]
         )
         
